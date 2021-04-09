@@ -8,16 +8,28 @@ Detailed documentation is in the "docs" directory.
 Quick start
 -----------
 
-1. Add "polls" to your INSTALLED_APPS setting like this::
+1. Add "seed_es" to your INSTALLED_APPS setting like this::
 
     INSTALLED_APPS = [
         ...
-        'seed_es',
+        'django-seed-elastic.seed_es',
     ]
 
 2. Include the seed_es URLconf in your project urls.py like this::
 
-    path('search/', include('seed_es.urls')),
+    path('search/', include('django-seed-elastic.seed_es.urls')),
 
-3. Example API calls:
+3. Add the following to your project settings file::
+
+    ELASTICSEARCH_DSL={
+        'default': {
+            'hosts': 'localhost:9200'
+        },
+        'test': {
+            'hosts': 'localhost:9200'
+        }
+    }
+
+
+4. Example API calls:  (look in tests)
 

@@ -131,7 +131,7 @@ class SeedSearchView(APIView):
         filters = payload.get('filters', {})
         location = payload.get('location', [])
         distance = payload.get('distance', DEFAULT_LOCATION_QUERY_DISTANCE)
-        print(f"'\nIndex:  {index}\nPayload:   {payload}\nQuery: {query}\nFilters: {filters}")
+        #print(f"'\nIndex:  {index}\nPayload:   {payload}\nQuery: {query}\nFilters: {filters}")
         if 'corn' in index:
             fctSearch = CornFacetedSearch
         if 'soy' in index:
@@ -141,10 +141,10 @@ class SeedSearchView(APIView):
 
         search = fctSearch(query=query, filters=filters, index=index, location=location, distance=distance)
         response = search.execute()
-        print('\nHit Summary\n', response.hits)
+        #print('\nHit Summary\n', response.hits)
         for hit in response:
             print(hit.meta.score, hit)
-        print('\nFacet Summary\n')
+        #print('\nFacet Summary\n')
         for i, (tag, count, selected) in enumerate(response.facets.tech_package):
             print(i, tag, ' (SELECTED):' if selected else ':', count)
 
@@ -152,8 +152,8 @@ class SeedSearchView(APIView):
         #     print(month.strftime('%B %Y'), ' (SELECTED):' if selected else ':', count)
         d = response.to_dict()
         d.pop('_faceted_search')
-        print(d)
+        #print(d)
         facets = response.facets
-        print('\n', facets.to_dict())
+        #print('\n', facets.to_dict())
         return Response(d)
 
