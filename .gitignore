@@ -1,2 +1,6 @@
 django_seed_elastic.egg-info/
 dist/
+
+__pycache__/
+seed_es/__pycache__/
+seed_es/migrations/__pycache__/
