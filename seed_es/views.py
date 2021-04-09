@@ -70,6 +70,19 @@ class CornFacetedSearch(SeedFacetedSearch):
     location = None
     distance = DEFAULT_LOCATION_QUERY_DISTANCE
 
+    def __init__(self, *args, **kwargs):
+        self.facets.update({'maturity_range':
+                                RangeFacet(field="maturity", ranges=[("< 85", (0, 84)),
+                                                                     ("85-94", (85, 94)),
+                                                                     ("95-104", (95, 104)),
+                                                                     ("105-114", (105, 114)),
+                                                                     ("115-124", (115, 124)),
+                                                                     (">124", (125, None)),
+                                                                     ]
+                                           )
+                            })
+        super().__init__(*args, **kwargs)
+
 
 class SoyFacetedSearch(SeedFacetedSearch):
     index = 'soy'
