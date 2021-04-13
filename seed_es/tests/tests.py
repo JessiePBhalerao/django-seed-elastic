@@ -3,9 +3,9 @@ from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from elasticsearch_dsl import Search
 
-
 from .tests_setup import setUpES
 from ..views import SeedSearchView
+from efg.apps.seeds.models import Corn, Soy
 
 import requests
 import json
@@ -99,6 +99,34 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
         data = {'query': None, 'filters': {'overall_yield_obs': [20.0]} }
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+
+class TrialFacetedSearchTests(TestCase):
+
+    def setUp(self):
+        # for now we are using the live local server (django and ES)
+        self.client = requests.Session()
+        self.headers = {'Content-type': 'application/json'}
+
+        # TODO make a test ES server work and change the client
+        # self.client = Client()
+        # resp = client.generic(method="GET", path=full_url, data=json.dumps(data),
+        #                            content_type='application/json')
+
+
+    def test_connection(self):
+        s = Search(index='test_corn').query('match', brand='PIONEER')
+        resp = s.execute()
+        self.assertEqual(2, len(resp.hits))
+
+    def test_simple_corn_seed_trials(self):
+        url = reverse('search_trial_facet', args=('test_corn',))
+        full_url = f"https://localhost:8001{url}"
+        corn = Corn.objects.first()
+        data = {'query': corn.id}
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)

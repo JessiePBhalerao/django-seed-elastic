@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.conf import settings
 
-from elasticsearch_dsl import Index, Document, Text, Keyword, GeoShape
+from elasticsearch_dsl import Index, Document, Text, Keyword, GeoShape, Integer, Float, GeoPoint
 from elasticsearch_dsl import connections
 connections.create_connection(hosts=['localhost'])
 
@@ -43,7 +43,33 @@ class TestSeedDocument(Document):
 class CornDoc(TestSeedDocument):
     pass
 
+
 class SoyDoc(TestSeedDocument):
+    pass
+
+
+class TestTrialDocument(Document):
+    product_id = Integer()
+    value_yield = Float()
+    display_yield = Text()
+    value_yield_adv = Float()
+    display_yield_adv = Text()
+    display_gi_rank = Text()
+
+    test_name = Text()
+    site_name = Text()
+    state = Text()
+    # location lookups
+    year = Integer()
+    test_region = Text()
+    location = GeoPoint()
+
+
+class CornTrialDoc(TestTrialDocument):
+    pass
+
+
+class SoyTrialDoc(TestTrialDocument):
     pass
 
 
@@ -67,6 +93,7 @@ def setUpES():
 
     CornDoc.init(index='test_corn')
     corn = CornDoc(
+        id = 1,
         brand='PIONEER',
         name = 'P1197AM',
         tech_package = 'AM',
@@ -75,6 +102,7 @@ def setUpES():
     )
     corn.save(index='test_corn')
     corn2 = CornDoc(
+        id=2,
         brand='PIONEER',
         name='P9999',
         tech_package='STX',
@@ -85,6 +113,7 @@ def setUpES():
     )
     corn2.save(index='test_corn')
     corn3 = CornDoc(
+        id=3,
         brand='NUTECH',
         name='N1234',
         tech_package='AM',
@@ -97,6 +126,7 @@ def setUpES():
 
     SoyDoc.init(index='test_soy')
     bean = SoyDoc(
+        id=1,
         brand='PIONEER',
         name = 'P11X01',
         tech_package = 'RXF',
@@ -108,6 +138,7 @@ def setUpES():
     )
     bean.save(index='test_soy')
     bean2 = SoyDoc(
+        id=2,
         brand='PIONEER',
         name = 'P009X01',
         tech_package = 'E3',
@@ -119,6 +150,257 @@ def setUpES():
     )
     bean2.save(index='test_soy')
 
+    # Trials setup
+    alton = [-96.010279, 42.987214]
+    emmetsburg = [-94.6830357, 43.1127427]
+    osage = [-92.8190838, 43.2841382]
+    paullina = [-95.6880657, 42.9791479]
+    plymouth = [-93.1215924, 43.2446852]
+    ventura = [-93.4779849, 43.1291257]
+
+    # product 1
+    ctrial = CornTrialDoc(
+        product_id=1,
+        value_yield=198.2,
+        display_yield='--',
+        value_yield_adv=-9.8,
+        display_yield_adv='--',
+        display_gi_rank='<30',
+
+        test_name='B2020IANOu',
+        site_name='Alton',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=alton,
+    )
+    ctrial.save(index='test_corn')
+    ctrial = CornTrialDoc(
+        product_id=1,
+        value_yield=225.4,
+        display_yield='225.4',
+        value_yield_adv=5.7,
+        display_yield_adv='5.7',
+        display_gi_rank='18',
+
+        test_name='B2020IANOu',
+        site_name='Emmetsburg',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=emmetsburg,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=1,
+        value_yield=186.0,
+        display_yield='--',
+        value_yield_adv=-12.8,
+        display_yield_adv='--',
+        display_gi_rank='<30',
+
+        test_name='B2020IANOu',
+        site_name='Osage',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=osage,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=1,
+        value_yield=201.0,
+        display_yield='201.0',
+        value_yield_adv=-8.9,
+        display_yield_adv='-8.9',
+        display_gi_rank='30',
+
+        test_name='B2020IANOu',
+        site_name='Paullina',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=paullina,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=1,
+        value_yield=234.2,
+        display_yield='234.2',
+        value_yield_adv=10.6,
+        display_yield_adv='1.6',
+        display_gi_rank='24',
+
+        test_name='B2020IANOu',
+        site_name='Plymouth',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=plymouth,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=1,
+        value_yield=225.4,
+        display_yield='225.4',
+        value_yield_adv=2.0,
+        display_yield_adv='2.7',
+        display_gi_rank='21',
+
+        test_name='B2020IANOu',
+        site_name='Ventura',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=ventura,
+    )
+    ctrial.save()
+
+    # product 2
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=218.2,
+        display_yield='218.2',
+        value_yield_adv=11.4,
+        display_yield_adv='11.4',
+        display_gi_rank='4',
+
+        test_name='B2020IANOu',
+        site_name='Alton',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=alton,
+    )
+    ctrial.save(index='test_corn')
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=236.4,
+        display_yield='236.4',
+        value_yield_adv=15.7,
+        display_yield_adv='15.7',
+        display_gi_rank='3',
+
+        test_name='B2020IANOu',
+        site_name='Emmetsburg',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=emmetsburg,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=206.0,
+        display_yield='206.0',
+        value_yield_adv=-1.4,
+        display_yield_adv='-1.4',
+        display_gi_rank='28',
+
+        test_name='B2020IANOu',
+        site_name='Osage',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=osage,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=241.0,
+        display_yield='241.0',
+        value_yield_adv=28.9,
+        display_yield_adv='28.9',
+        display_gi_rank='2',
+
+        test_name='B2020IANOu',
+        site_name='Paullina',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=paullina,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=241.1,
+        display_yield='241.1',
+        value_yield_adv=0.6,
+        display_yield_adv='0.6',
+        display_gi_rank='12',
+
+        test_name='B2020IANOu',
+        site_name='Plymouth',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=plymouth,
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=241.8,
+        display_yield='241.8',
+        value_yield_adv=2.7,
+        display_yield_adv='2.7',
+        display_gi_rank='21',
+
+        test_name='B2020IANOu',
+        site_name='Ventura',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=ventura,
+    )
+    ctrial.save()
+
+    # product 2 different region
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=212.8,
+        display_yield='212.8',
+        value_yield_adv=12.0,
+        display_yield_adv='12.0',
+        display_gi_rank='21',
+
+        test_name='B2020SDSEa',
+        site_name='Salem',
+        state='SD',
+        # location lookups
+        year=2020,
+        test_region='South Dakota Southeast [SDSE]',
+        location=[-97.388953, 43.7241455],
+    )
+    ctrial.save()
+    ctrial = CornTrialDoc(
+        product_id=2,
+        value_yield=179.8,
+        display_yield='179.8',
+        value_yield_adv=-12.0,
+        display_yield_adv='--',
+        display_gi_rank='>30',
+
+        test_name='B2020SDSEa',
+        site_name='Irene',
+        state='SD',
+        # location lookups
+        year=2020,
+        test_region='South Dakota Southeast [SDSE]',
+        location=[-97.1570149, 43.0834535],
+    )
+    ctrial.save()
 
     # have to wait for the documents to index properly
     time.sleep(2)

@@ -2,101 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
 
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl.connections import connections
-from elasticsearch_dsl import Search
-from elasticsearch_dsl import FacetedSearch, TermsFacet, RangeFacet, HistogramFacet
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-DEFAULT_LOCATION_QUERY_DISTANCE = "20km"
-
-
-class SeedFacetedSearch(FacetedSearch):
-    doc_types = ['_doc']
-    # fields that should be searched
-    fields = ['proper_brand',
-              'tech_package',
-              # 'maturity',
-              # 'overall_yield_obs',
-              # 'guide_score', 'customer_score', 'price_score',
-              # 'years', 'overall_yield_adv'
-              ]
-
-    facets = {
-        # use bucket aggregations to define facets
-        'year': TermsFacet(field='years'),
-        'tech_package': TermsFacet(field='tech_package'),
-        'overall_yield_obs': HistogramFacet(field='overall_yield_obs', interval=10),
-        'brand': TermsFacet(field='proper_brand'),
-    }
-
-
-    def __init__(self, query=None, filters={}, sort=(), index=None,
-                 location=None, distance=None):
-        if index:
-            self.index = index
-        if location:
-            self.location = location
-        if distance:
-            self.distance = distance
-        super().__init__(query, filters, sort)
-
-
-    def query(self, search, query):
-        """
-        Add query part to ``search``.
-        :param search :     Search class
-        :param query :      text search term
-        """
-        ns = search
-        if self.location:
-            # ns = Search(index='corn')
-            # qry = ns.query('geo_distance', distance="20km", location=[-88, 40]).sort('-overall_yield_adv', '_score').query("match", tech_package="VT2P")
-            # resp = qry.execute() --> hits in the corn index that are within 20km of the location.  can chain query after
-            ns = search.query("geo_distance", distance=self.distance, location=self.location)
-        if query:
-            if self.fields:
-                return ns.query("multi_match", fields=self.fields, query=query)
-            else:
-                return ns.query("multi_match", query=query)
-        return ns
-
-
-class CornFacetedSearch(SeedFacetedSearch):
-    index = 'corn'
-    location = None
-    distance = DEFAULT_LOCATION_QUERY_DISTANCE
-
-    def __init__(self, *args, **kwargs):
-        self.facets.update({'maturity_range':
-                                RangeFacet(field="maturity", ranges=[("< 85", (0, 84)),
-                                                                     ("85-94", (85, 94)),
-                                                                     ("95-104", (95, 104)),
-                                                                     ("105-114", (105, 114)),
-                                                                     ("115-124", (115, 124)),
-                                                                     (">124", (125, None)),
-                                                                     ]
-                                           )
-                            })
-        super().__init__(*args, **kwargs)
-
-
-class SoyFacetedSearch(SeedFacetedSearch):
-    index = 'soy'
-    location = None
-    distance = DEFAULT_LOCATION_QUERY_DISTANCE
-
-    def __init__(self, *args, **kwargs):
-        self.facets.update({'maturity_range':
-                                RangeFacet(field="maturity", ranges=[("Group 0", (0, 0.99)),
-                                                                     ("Group 1", (1, 1.99)),
-                                                                     ]
-                                           )
-                            })
-        super().__init__(*args, **kwargs)
+from .search import *
 
 
 class SearchSchemaView(APIView):
@@ -170,3 +76,23 @@ class SeedSearchView(APIView):
         #print('\n', facets.to_dict())
         return Response(d)
 
+
+class SimpleTrialsView(APIView):
+    """Retrieve all trials data for a particular seed -- with facets for filtering at some point"""
+
+    def get(self, request, index, format=None):
+        fctSearch = None
+        payload = request.data
+        seed_id = payload.get('seed_id')
+        filters = payload.get('filters', {})
+        fctSearch = CornTrialFacetedSearch
+        if 'soy' in index:
+            fctSearch = SoyTrialFacetedSearch
+        if not fctSearch:
+            Response(status=404)
+
+        search = fctSearch(seed_id=seed_id, filters=filters, index=index)
+        response = search.execute()
+        d = response.to_dict()
+        d.pop('_faceted_search')
+        return Response(d)
