@@ -85,13 +85,14 @@ class SimpleTrialsView(APIView):
         payload = request.data
         seed_id = payload.get('seed_id')
         filters = payload.get('filters', {})
+        location = payload.get('location', [])
         fctSearch = CornTrialFacetedSearch
         if 'soy' in index:
             fctSearch = SoyTrialFacetedSearch
         if not fctSearch:
             Response(status=404)
 
-        search = fctSearch(seed_id=seed_id, filters=filters, index=index)
+        search = fctSearch(seed_id=seed_id, filters=filters, index=index, location=location)
         response = search.execute()
         d = response.to_dict()
         d.pop('_faceted_search')

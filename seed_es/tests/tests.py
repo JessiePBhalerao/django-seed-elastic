@@ -1,11 +1,13 @@
 from django.test import TestCase, LiveServerTestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
 from elasticsearch_dsl import Search
 
 from .tests_setup import setUpES
 from ..views import SeedSearchView
 from efg.apps.seeds.models import Corn, Soy
+from efg.apps.associates.models import Organization
 
 import requests
 import json
@@ -36,6 +38,7 @@ class SeedFacetedSearchTests(TestCase):
         data = {'query': None, 'filters': {} }
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
+        print(json.loads(resp.content))
         self.assertNotIn('hits', json.loads(resp.content))
         self.assertEqual(json.loads(resp.content)['aggregations']['_filter_overall_yield_obs']['doc_count'], 3)
         self.assertEqual(json.loads(resp.content)['aggregations']['_filter_year']['doc_count'], 3)
@@ -110,7 +113,17 @@ class TrialFacetedSearchTests(TestCase):
         # for now we are using the live local server (django and ES)
         self.client = requests.Session()
         self.headers = {'Content-type': 'application/json'}
-
+        self.su = User.objects.create_superuser('jessie', email='jessie@gmail.com', password='SUPR1$E')
+        originator = Organization.objects.create(fullname='Default Seed Company',
+                                                 created_by=self.su, modified_by=self.su)
+        self.corn = Corn.objects.create(
+            brand='PIONEER',
+            name='BEST100X',
+            id=1,
+            seed_status='A',
+            maturity=100,
+            originator=originator,
+        )
         # TODO make a test ES server work and change the client
         # self.client = Client()
         # resp = client.generic(method="GET", path=full_url, data=json.dumps(data),
@@ -123,10 +136,18 @@ class TrialFacetedSearchTests(TestCase):
         self.assertEqual(2, len(resp.hits))
 
     def test_simple_corn_seed_trials(self):
-        url = reverse('search_trial_facet', args=('test_corn',))
-        full_url = f"https://localhost:8001{url}"
-        corn = Corn.objects.first()
-        data = {'query': corn.id}
+        url = reverse('search_trial_facet', args=('test_corn_trials',))
+        full_url = f"http://localhost:8001{url}"
+        data = {'seed_id': 1}
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
+        print(json.loads(resp.content))
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 6)
+        self.assertNotIn('value_yield', json.loads(resp.content)['hits']['hits'][0]['_source'])
+        self.assertIn('display_yield', json.loads(resp.content)['hits']['hits'][0]['_source'])
+
+        data = {'seed_id': 1, 'location': 'POINT (-96.010279 42.987214)'}
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        print('\n\n', json.loads(resp.content))
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)

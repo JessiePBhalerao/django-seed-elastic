@@ -151,14 +151,24 @@ def setUpES():
     bean2.save(index='test_soy')
 
     # Trials setup
-    alton = [-96.010279, 42.987214]
-    emmetsburg = [-94.6830357, 43.1127427]
-    osage = [-92.8190838, 43.2841382]
-    paullina = [-95.6880657, 42.9791479]
-    plymouth = [-93.1215924, 43.2446852]
-    ventura = [-93.4779849, 43.1291257]
+    alton = 'POINT (-96.010279 42.987214)' #[-96.010279, 42.987214]
+    emmetsburg = 'POINT (-94.6830357 43.1127427)' #[-94.6830357, 43.1127427]
+    osage = 'POINT (-92.8190838 43.2841382)'
+    paullina = 'POINT (-95.6880657 42.9791479)'
+    plymouth = 'POINT (-93.1215924 43.2446852)'
+    ventura = 'POINT (-93.4779849 43.1291257)'
+
+    test_index = 'test_corn_trials'
+    try:
+        i = Index(test_index)
+        i.delete()
+    except:
+        pass
+    i = Index(test_index)
+    i.create()
 
     # product 1
+    CornTrialDoc.init(index=test_index)
     ctrial = CornTrialDoc(
         product_id=1,
         value_yield=198.2,
@@ -175,7 +185,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=alton,
     )
-    ctrial.save(index='test_corn')
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=1,
         value_yield=225.4,
@@ -192,7 +202,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=emmetsburg,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=1,
         value_yield=186.0,
@@ -209,7 +219,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=osage,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=1,
         value_yield=201.0,
@@ -226,7 +236,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=paullina,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=1,
         value_yield=234.2,
@@ -243,7 +253,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=plymouth,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=1,
         value_yield=225.4,
@@ -260,7 +270,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=ventura,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
 
     # product 2
     ctrial = CornTrialDoc(
@@ -279,7 +289,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=alton,
     )
-    ctrial.save(index='test_corn')
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=2,
         value_yield=236.4,
@@ -296,7 +306,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=emmetsburg,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=2,
         value_yield=206.0,
@@ -313,7 +323,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=osage,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=2,
         value_yield=241.0,
@@ -330,7 +340,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=paullina,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=2,
         value_yield=241.1,
@@ -347,7 +357,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=plymouth,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=2,
         value_yield=241.8,
@@ -364,7 +374,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=ventura,
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
 
     # product 2 different region
     ctrial = CornTrialDoc(
@@ -381,9 +391,9 @@ def setUpES():
         # location lookups
         year=2020,
         test_region='South Dakota Southeast [SDSE]',
-        location=[-97.388953, 43.7241455],
+        location='POINT (-97.388953 43.7241455)'
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
         product_id=2,
         value_yield=179.8,
@@ -398,9 +408,9 @@ def setUpES():
         # location lookups
         year=2020,
         test_region='South Dakota Southeast [SDSE]',
-        location=[-97.1570149, 43.0834535],
+        location='POINT (-97.1570149 43.0834535)'
     )
-    ctrial.save()
+    ctrial.save(index=test_index)
 
     # have to wait for the documents to index properly
     time.sleep(2)
