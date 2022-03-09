@@ -33,7 +33,7 @@ import time
 
 
 class TestSeedDocument(Document):
-    brand = Keyword()
+    brand = Text()
     name = Text()
     tech_package = Keyword()
     proper_brand = Keyword()

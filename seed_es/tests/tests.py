@@ -60,8 +60,9 @@ class SeedFacetedSearchTests(TestCase):
 
     def test_simple_seed_search_corn(self):
         url = reverse('search_seed_facet', args=('test_corn',))
+
         full_url = f'http://localhost:8001{url}'
-        data = {'query': 'Pioneer', 'filters': {'tech_package': 'AM'} }
+        data = {'query': 'pioneer', 'filters': {'tech_package': 'AM'} }
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
@@ -82,9 +83,19 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
 
+        data = {'query': 'n12', 'filters': {} }
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
     def test_simple_seed_search_soy(self):
         url = reverse('search_seed_facet', args=('test_soy',))
         full_url = f'http://localhost:8001{url}'
+
+        data = {'query': '11X', 'filters': {} }
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
         data = {'query': None, 'filters': {'tech_package': ['E3', 'RXF']} }
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)

@@ -2,7 +2,8 @@ from elasticsearch_dsl import FacetedSearch, TermsFacet, RangeFacet, HistogramFa
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl.connections import connections
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
+from copy import deepcopy
 
 import logging
 
@@ -18,8 +19,9 @@ class SeedFacetedSearch(FacetedSearch):
     distance = DEFAULT_LOCATION_QUERY_DISTANCE
 
     # fields that should be searched
-    fields = ['proper_brand',
-              'tech_package',
+    fields = ['brand',
+              # 'tech_package',
+              "name",
               # 'maturity',
               # 'overall_yield_obs',
               # 'guide_score', 'customer_score', 'price_score',
@@ -51,17 +53,25 @@ class SeedFacetedSearch(FacetedSearch):
         :param search :     Search class
         :param query :      text search term
         """
-        ns = search
+        ns = deepcopy(search)
         if self.location:
             # ns = Search(index='corn')
             # qry = ns.query('geo_distance', distance="20km", location=[-88, 40]).sort('-overall_yield_adv', '_score').query("match", tech_package="VT2P")
             # resp = qry.execute() --> hits in the corn index that are within 20km of the location.  can chain query after
-            ns = search.query("geo_distance", distance=self.distance, location=self.location)
+            ns = ns.query("geo_distance", distance=self.distance, location=self.location)
+
         if query:
             if self.fields:
-                return ns.query("multi_match", fields=self.fields, query=query)
+                q_objects = None
+                for i, field in enumerate(self.fields):
+                    if i == 0:
+                        q_objects = Q("wildcard", **{field: '*' + query + '*'})
+                    else:
+                        q_objects |= Q("wildcard", **{field: '*' + query + '*'})
+                return ns.query(q_objects)
             else:
-                return ns.query("multi_match", query=query)
+                # return ns.query("multi_match", query=query)
+                return ns.query("wildcard", query=query)
         return ns
 
 
@@ -115,6 +125,7 @@ class TrialFacetedSearch(FacetedSearch):
         super().__init__(query, filters, sort)
 
     def limit_source(self, search):
+        # remove value_* fields from the documents returned, we only want display ready values for the front end
         s = search.source(excludes=['value_*'])
         return s
 
@@ -130,6 +141,7 @@ class TrialFacetedSearch(FacetedSearch):
             print('\nLocation query:  ', self.distance, self.location)
             ns = search.query("geo_distance", distance=self.distance, location=self.location)
         ns = ns.query("term", product_id=self.seed_id)
+        # remove value_* fields from the documents returned, we only want display ready values for the front end
         ns = ns.source(excludes=['value_*'])
         # aggregations occur in place - no copy returned  https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html#the-search-object
         aggregate_trials(ns)
