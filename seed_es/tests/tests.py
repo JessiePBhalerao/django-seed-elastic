@@ -12,7 +12,7 @@ from efg.apps.associates.models import Organization
 import requests
 import json
 
-setUpES()
+# setUpES()
 
 class SeedFacetedSearchTests(TestCase):
 
@@ -88,6 +88,12 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
+        data = {'maturity_range': [100, 104]}
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+
     def test_simple_seed_search_soy(self):
         url = reverse('search_seed_facet', args=('test_soy',))
         full_url = f'http://localhost:8001{url}'
@@ -113,6 +119,16 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
         data = {'query': None, 'filters': {'overall_yield_obs': [20.0]} }
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+        data = {'maturity_range': [0, 0.09]}
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+        data = {'maturity_range': [1, 2]}
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
@@ -160,5 +176,65 @@ class TrialFacetedSearchTests(TestCase):
         data = {'seed_id': 1, 'location': 'POINT (-96.010279 42.987214)'}
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
-        print('\n\n', json.loads(resp.content))
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+
+class ReportFacetedSearchTests(TestCase):
+
+    def setUp(self):
+        # for now we are using the live local server (django and ES)
+        self.client = requests.Session()
+        self.headers = {'Content-type': 'application/json'}
+        url = reverse('search_report_facet', args=('test_corn_reports',))
+        self.full_url = f'http://localhost:8001{url}'
+
+    def test_reports_near_location(self):
+        data = {'query': None,
+                'location': 'POINT (-96.010279 42.987214)'}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+    def test_reports_by_maturity(self):
+        data = {'maturity_range': [100, 104]}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 4)
+
+        data = {'maturity_range': [88, 91]}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
+
+    def test_reports_by_state(self):
+        data = {'filters': {'state': ['IA', 'MO']}}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 6)
+
+    def test_reports_by_last_update(self):
+        data = {'filters': {'published': ["new"]}}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+        data = {'filters': {'published': ["week"]}}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 3)
+
+        data = {'filters': {'published': ["2 weeks"]}}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 4)
+
+        data = {'filters': {'published': ["month"]}}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 5)
+
+        data = {'filters': {'published': ["any"]}}
+        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 6)
+        # test soybeans

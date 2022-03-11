@@ -1,7 +1,7 @@
-from django.test import TestCase
-from django.conf import settings
+from django.utils.timezone import now, timedelta
 
-from elasticsearch_dsl import Index, Document, Text, Keyword, GeoShape, Integer, Float, GeoPoint
+
+from elasticsearch_dsl import Index, Document, Text, Keyword, GeoShape, Integer, Float, GeoPoint, Date
 from elasticsearch_dsl import connections
 connections.create_connection(hosts=['localhost'])
 
@@ -37,6 +37,7 @@ class TestSeedDocument(Document):
     name = Text()
     tech_package = Keyword()
     proper_brand = Keyword()
+    maturity = Float()
     location = GeoShape()
 
 
@@ -73,6 +74,23 @@ class SoyTrialDoc(TestTrialDocument):
     pass
 
 
+class TestReportDocument(Document):
+    site_name = Text()
+    state = Keyword()
+    # location lookups
+    year = Integer()
+    test_region = Text()
+    location = GeoPoint()
+    soil_texture = Keyword()
+    last_update = Date()
+
+class CornReportDoc(TestReportDocument):
+    pass
+
+
+class SoyReportDoc(TestReportDocument):
+    pass
+
 
 def setUpES():
     # load ES docs
@@ -97,6 +115,7 @@ def setUpES():
         brand='PIONEER',
         name = 'P1197AM',
         tech_package = 'AM',
+        maturity = 101.0,
         proper_brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
     )
@@ -106,6 +125,7 @@ def setUpES():
         brand='PIONEER',
         name='P9999',
         tech_package='STX',
+        maturity = 99.0,
         proper_brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
         overall_yield_obs = 25,
@@ -117,6 +137,7 @@ def setUpES():
         brand='NUTECH',
         name='N1234',
         tech_package='AM',
+        maturity=114.0,
         proper_brand='NuTech',
         location = "BBOX (-94.8724706, -90.4856042, 42.3469749, 41.7306054)",
         overall_yield_obs=9,
@@ -411,6 +432,88 @@ def setUpES():
         location='POINT (-97.1570149 43.0834535)'
     )
     ctrial.save(index=test_index)
+
+    " Set up reports index"
+    test_index = 'test_corn_reports'
+    try:
+        i = Index(test_index)
+        i.delete()
+    except:
+        pass
+    i = Index(test_index)
+    i.create()
+
+    CornReportDoc.init(index=test_index)
+    doc = CornReportDoc(
+        site_name='Alton',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=alton,
+        pub_days_ago=0,
+        soil_texture='Silty Clay Loam',
+        maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0],
+    )
+    doc.save(index=test_index)
+    doc = CornReportDoc(
+        site_name='Emmetsburg',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=emmetsburg,
+        pub_days_ago=3,
+        soil_texture='Clay Loam',
+        maturity=[90.0, 91.0, 92.0, 93.0, 94.0, 95.0]
+    )
+    doc.save(index=test_index)
+    doc = CornReportDoc(
+        site_name='Osage',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=osage,
+        soil_texture='Sandy Clay Loam',
+        pub_days_ago=7,
+        maturity=[90.0, 91.0, 92.0, 93.0, 94.0, 95.0]
+    )
+    doc.save(index=test_index)
+    doc = CornReportDoc(
+        site_name='Paullina',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=paullina,
+        soil_texture='Clay',
+        pub_days_ago=14,
+        maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]
+    )
+    doc.save(index=test_index)
+    doc = CornReportDoc(
+        site_name='Plymouth',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=plymouth,
+        pub_days_ago=21,
+        maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]
+    )
+    doc.save(index=test_index)
+    doc = CornReportDoc(
+        site_name='Ventura',
+        state='IA',
+        # location lookups
+        year=2020,
+        test_region='Iowa North [IANO]',
+        location=ventura,
+        pub_days_ago=32,
+        maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]
+    )
+    doc.save(index=test_index)
 
     # have to wait for the documents to index properly
     time.sleep(2)
