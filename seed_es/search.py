@@ -48,6 +48,7 @@ class FIRSTFacetedSearch(FacetedSearch):
         :param query :      text search term
         """
         ns = deepcopy(search)
+        ns = ns.extra(track_total_hits=True)
         if self.maturity_range:
             return ns.filter('terms', maturity=self.maturity_range)
 
@@ -84,15 +85,10 @@ class SeedFacetedSearch(FIRSTFacetedSearch):
         # use bucket aggregations to define facets
         'year': TermsFacet(field='years'),
         'tech_package': TermsFacet(field='tech_package'),
-        'overall_yield_obs': HistogramFacet(field='overall_yield_obs', interval=10),
+        'yield_obs': HistogramFacet(field='yield_obs', interval=10),
         'brand': TermsFacet(field='proper_brand', size=30),
         'maturity': TermsFacet(field='maturity', size=60)
     }
-
-    # def search(self):
-    #     # override search to update the results to 50
-    #     s = super().search()
-    #     return s
 
 
 class CornFacetedSearch(SeedFacetedSearch):
@@ -130,7 +126,8 @@ class SoyFacetedSearch(SeedFacetedSearch):
         super().__init__(*args, **kwargs)
 
 
-
+def aggregate_trials(search):
+    return search.aggs.metric('avg_yield', 'avg', field='value_yield')
 
 
 class TrialFacetedSearch(FacetedSearch):
@@ -143,16 +140,7 @@ class TrialFacetedSearch(FacetedSearch):
         self.location = location
         self.distance = distance
         super().__init__(query, filters, sort)
-
-    @staticmethod
-    def aggregate_trials(search):
-        return search.aggs.metric('avg_yield', 'avg', field='value_yield')
-
-    def limit_source(self, search):
-        # remove value_* fields from the documents returned, we only want display ready values for the front end
-        s = search.source(excludes=['value_*'])
-        return s
-
+        
     def query(self, search, query):
         """
         Add query part to ``search``.
@@ -160,21 +148,20 @@ class TrialFacetedSearch(FacetedSearch):
         :param query :      text search term
         """
         ns = search
-        # override to always query the seed_id
         if self.location:
-            print('\nLocation query:  ', self.distance, self.location)
             ns = search.query("geo_distance", distance=self.distance, location=self.location)
 
         # aggregations occur in place - no copy returned  https://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html#the-search-object
-        self.aggregate_trials(ns)
+        aggregate_trials(ns)
         return ns
 
     def search(self):
         s = super().search()
-        # override to always search on seed_id
-        s.query("term", product_id=self.seed_id)
         # remove value_* fields from the documents returned, we only want display ready values for the front end
-        s.source(excludes=['value_*'])
+        s = s.source(excludes=['value_*'])
+
+        # override to always search on seed_id
+        s = s.query("term", seed_id=self.seed_id)
         return s
 
 

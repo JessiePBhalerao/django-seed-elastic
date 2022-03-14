@@ -39,6 +39,7 @@ class TestSeedDocument(Document):
     proper_brand = Keyword()
     maturity = Float()
     location = GeoShape()
+    yield_obs = Integer()
 
 
 class CornDoc(TestSeedDocument):
@@ -50,7 +51,7 @@ class SoyDoc(TestSeedDocument):
 
 
 class TestTrialDocument(Document):
-    product_id = Integer()
+    seed_id = Integer()
     value_yield = Float()
     display_yield = Text()
     value_yield_adv = Float()
@@ -117,6 +118,7 @@ def setUpES():
         tech_package = 'AM',
         maturity = 101.0,
         proper_brand='Pioneer',
+        top30_pct = 70.0,
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
     )
     corn.save(index='test_corn')
@@ -128,7 +130,8 @@ def setUpES():
         maturity = 99.0,
         proper_brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
-        overall_yield_obs = 25,
+        yield_obs = 25,
+        top30_pct = 70.0,
         years=[2020, 2019, 2018],
     )
     corn2.save(index='test_corn')
@@ -140,7 +143,8 @@ def setUpES():
         maturity=114.0,
         proper_brand='NuTech',
         location = "BBOX (-94.8724706, -90.4856042, 42.3469749, 41.7306054)",
-        overall_yield_obs=9,
+        yield_obs=9,
+        top30_pct = 70.0,
         years=[2019, 2018],
     )
     corn3.save(index='test_corn')
@@ -154,7 +158,8 @@ def setUpES():
         maturity = 1.1,
         proper_brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
-        overall_yield_obs=9,
+        yield_obs=9,
+        top30_pct = 70.0,
         years=[2020],
     )
     bean.save(index='test_soy')
@@ -166,7 +171,8 @@ def setUpES():
         maturity = 0.09,
         proper_brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
-        overall_yield_obs=24,
+        yield_obs=24,
+        top30_pct = 70.0,
         years=[2020],
     )
     bean2.save(index='test_soy')
@@ -191,7 +197,7 @@ def setUpES():
     # product 1
     CornTrialDoc.init(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=1,
+        seed_id=1,
         value_yield=198.2,
         display_yield='--',
         value_yield_adv=-9.8,
@@ -208,7 +214,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=1,
+        seed_id=1,
         value_yield=225.4,
         display_yield='225.4',
         value_yield_adv=5.7,
@@ -225,7 +231,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=1,
+        seed_id=1,
         value_yield=186.0,
         display_yield='--',
         value_yield_adv=-12.8,
@@ -242,7 +248,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=1,
+        seed_id=1,
         value_yield=201.0,
         display_yield='201.0',
         value_yield_adv=-8.9,
@@ -259,7 +265,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=1,
+        seed_id=1,
         value_yield=234.2,
         display_yield='234.2',
         value_yield_adv=10.6,
@@ -276,7 +282,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=1,
+        seed_id=1,
         value_yield=225.4,
         display_yield='225.4',
         value_yield_adv=2.0,
@@ -295,7 +301,7 @@ def setUpES():
 
     # product 2
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=218.2,
         display_yield='218.2',
         value_yield_adv=11.4,
@@ -312,7 +318,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=236.4,
         display_yield='236.4',
         value_yield_adv=15.7,
@@ -329,7 +335,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=206.0,
         display_yield='206.0',
         value_yield_adv=-1.4,
@@ -346,7 +352,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=241.0,
         display_yield='241.0',
         value_yield_adv=28.9,
@@ -363,7 +369,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=241.1,
         display_yield='241.1',
         value_yield_adv=0.6,
@@ -380,7 +386,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=241.8,
         display_yield='241.8',
         value_yield_adv=2.7,
@@ -399,7 +405,7 @@ def setUpES():
 
     # product 2 different region
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=212.8,
         display_yield='212.8',
         value_yield_adv=12.0,
@@ -416,7 +422,7 @@ def setUpES():
     )
     ctrial.save(index=test_index)
     ctrial = CornTrialDoc(
-        product_id=2,
+        seed_id=2,
         value_yield=179.8,
         display_yield='179.8',
         value_yield_adv=-12.0,
