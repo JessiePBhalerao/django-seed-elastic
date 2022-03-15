@@ -1,9 +1,5 @@
 from django.utils.timezone import now, timedelta
-
-
 from elasticsearch_dsl import Index, Document, Text, Keyword, GeoShape, Integer, Float, GeoPoint, Date
-from elasticsearch_dsl import connections
-connections.create_connection(hosts=['localhost'])
 
 import time
 

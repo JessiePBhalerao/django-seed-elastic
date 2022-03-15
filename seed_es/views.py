@@ -5,8 +5,11 @@ from rest_framework import authentication, permissions
 from django.views.generic.list import MultipleObjectMixin
 from django.conf import settings
 
-from efg.utility.general_utils import seq
+from .utils import seq
 from .search import *
+
+from elasticsearch_dsl import connections
+connections.create_connection(hosts=['localhost'])
 
 
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
