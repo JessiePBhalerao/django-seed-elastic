@@ -14,6 +14,8 @@ import json
 
 setUpES()
 
+
+
 class SeedFacetedSearchTests(TestCase):
 
     def setUp(self):
@@ -28,7 +30,7 @@ class SeedFacetedSearchTests(TestCase):
 
 
     def test_connection(self):
-        s = Search(index='test_corn').query('match', brand='PIONEER')
+        s = Search(index='test_corn').query('match', brand='Pioneer')
         resp = s.execute()
         self.assertEqual(2, len(resp.hits))
 
@@ -76,6 +78,11 @@ class SeedFacetedSearchTests(TestCase):
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 3)
+
+        data = {'query': None, 'filters': {'states': ['Iowa']} }
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
         data = {'query': None,
                 'location': [-88.5, 39]}
@@ -158,7 +165,7 @@ class TrialFacetedSearchTests(TestCase):
 
 
     def test_connection(self):
-        s = Search(index='test_corn').query('match', brand='PIONEER')
+        s = Search(index='test_corn').query('match', brand='Pioneer')
         resp = s.execute()
         self.assertEqual(2, len(resp.hits))
 

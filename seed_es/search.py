@@ -76,9 +76,9 @@ class FIRSTFacetedSearch(FacetedSearch):
 
 class SeedFacetedSearch(FIRSTFacetedSearch):
     # fields that should be searched
-    fields = ['brand',
+    fields = ['full_name',
               # 'tech_package',
-              "name",
+              # "name",
               ]
 
     facets = {
@@ -86,8 +86,9 @@ class SeedFacetedSearch(FIRSTFacetedSearch):
         'year': TermsFacet(field='years'),
         'tech_package': TermsFacet(field='tech_package'),
         'yield_obs': HistogramFacet(field='yield_obs', interval=10),
-        'brand': TermsFacet(field='proper_brand', size=30),
-        'maturity': TermsFacet(field='maturity', size=60)
+        'brand': TermsFacet(field='brand', size=30),
+        'maturity': TermsFacet(field='maturity', size=60),
+        'states': TermsFacet(field='states', size=20)
     }
 
 
@@ -140,7 +141,7 @@ class TrialFacetedSearch(FacetedSearch):
         self.location = location
         self.distance = distance
         super().__init__(query, filters, sort)
-        
+
     def query(self, search, query):
         """
         Add query part to ``search``.

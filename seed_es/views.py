@@ -71,11 +71,11 @@ class SeedSearchView(APIView):
 
     def sort_priority(self, sort_value):
         if sort_value == 'count':
-            search = ('-top30_cnt', '-yield_obs', 'proper_brand')
+            search = ('-top30_cnt', '-yield_obs', 'brand')
         elif sort_value == 'alpha':
-            search = ('proper_brand', 'name')
+            search = ('brand', 'name')
         else:
-            search = ('-top30_pct', '-yield_obs', 'proper_brand')
+            search = ('-top30_pct', '-yield_obs', 'brand')
         return search
 
     def get(self, request, index, format=None):
@@ -102,6 +102,7 @@ class SeedSearchView(APIView):
             crop_code = 'S'
         if not fctSearch:
             Response(status=404)
+        # in this view, the maturity range can be set as a filter directly because the SeedFacetedSearch has it as a facet
         if maturity_range:
             if crop_code == 'S':
                 mats = seq(float(maturity_range[0]), float(maturity_range[1]), step=0.01, digit=2)
@@ -132,9 +133,9 @@ class SeedSearchView(APIView):
             d = response.object_list.to_dict()
             d.update({'num_pages': paginator.num_pages,
                       'next_page': response.next_page_number() if (page > 1 and page < paginator.num_pages) else None,
+                      'page': page,
                       'previous_page': response.previous_page_number() if page > 1 else None,
                       'per_page': per_page or settings.ES_PAGINATION_DEFAULT_LENGTH,
-                      'page': page,
                       })
         else:
             response = search.execute()

@@ -33,13 +33,13 @@ import time
 
 
 class TestSeedDocument(Document):
-    brand = Text()
     name = Text()
     tech_package = Keyword()
-    proper_brand = Keyword()
+    brand = Keyword()
     maturity = Float()
     location = GeoShape()
     yield_obs = Integer()
+    states = Keyword()
 
 
 class CornDoc(TestSeedDocument):
@@ -113,50 +113,53 @@ def setUpES():
     CornDoc.init(index='test_corn')
     corn = CornDoc(
         id = 1,
-        brand='PIONEER',
+        full_name='PIONEER P1197AM',
         name = 'P1197AM',
         tech_package = 'AM',
         maturity = 101.0,
-        proper_brand='Pioneer',
+        brand='Pioneer',
         top30_pct = 70.0,
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
+        states=['Iowa', 'Illinois', 'Missouri'],
     )
     corn.save(index='test_corn')
     corn2 = CornDoc(
         id=2,
-        brand='PIONEER',
+        full_name='PIONEER P9999',
         name='P9999',
         tech_package='STX',
         maturity = 99.0,
-        proper_brand='Pioneer',
+        brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
         yield_obs = 25,
         top30_pct = 70.0,
         years=[2020, 2019, 2018],
+        states=['Minnesota', 'North Dakota'],
     )
     corn2.save(index='test_corn')
     corn3 = CornDoc(
         id=3,
-        brand='NUTECH',
+        full_name='NUTECH N1234',
         name='N1234',
         tech_package='AM',
         maturity=114.0,
-        proper_brand='NuTech',
+        brand='NuTech',
         location = "BBOX (-94.8724706, -90.4856042, 42.3469749, 41.7306054)",
         yield_obs=9,
         top30_pct = 70.0,
         years=[2019, 2018],
+        states=['Ohio', 'Pennsylvania', 'Maryland'],
     )
     corn3.save(index='test_corn')
 
     SoyDoc.init(index='test_soy')
     bean = SoyDoc(
         id=1,
-        brand='PIONEER',
+        full_name='PIONEER P11X01',
         name = 'P11X01',
         tech_package = 'RXF',
         maturity = 1.1,
-        proper_brand='Pioneer',
+        brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
         yield_obs=9,
         top30_pct = 70.0,
@@ -165,11 +168,11 @@ def setUpES():
     bean.save(index='test_soy')
     bean2 = SoyDoc(
         id=2,
-        brand='PIONEER',
+        full_name='PIONEER P009X01',
         name = 'P009X01',
         tech_package = 'E3',
         maturity = 0.09,
-        proper_brand='Pioneer',
+        brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
         yield_obs=24,
         top30_pct = 70.0,
