@@ -29,7 +29,9 @@ Quick start
             'hosts': 'localhost:9200'
         }
     }
-
+    ES_MAX_RESULTS_COUNT = 500
+    ES_PAGINATION_DEFAULT_LENGTH = 10
+    ES_USE_PAGINATION = os.environ.get('ES_USE_PAGINATION', "true").lower() == "true"
 
 4. Example API calls:  (look in tests)
 
