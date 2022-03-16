@@ -9,7 +9,8 @@ from .utils import seq
 from .search import *
 
 from elasticsearch_dsl import connections
-connections.create_connection(hosts=['localhost'])
+# connections.create_connection(hosts=['localhost'])
+connections.create_connection(hosts=settings.ELASTICSEARCH_DSL['default']['hosts'])
 
 
 from django.core.paginator import Paginator, Page, EmptyPage, PageNotAnInteger
