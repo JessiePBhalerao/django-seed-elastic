@@ -1,4 +1,5 @@
 from django.test import TestCase, LiveServerTestCase, Client, override_settings
+from unittest import skip
 from django.urls import reverse
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
@@ -14,6 +15,7 @@ import json
 
 # setUpES()
 
+@skip("Live server tests -- only run for integration testing")
 class SeedFacetedSearchTests(TestCase):
 
     def setUp(self):
@@ -74,18 +76,19 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 10)
 
-        data = {'query': None,
-                'location': [-88.5, 39]}
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 10)
-
-        data = {'query': None,
-                'location': [-88.5, 39],
-                'distance': '50km'}
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 10)
+        "Unfortunately this query isn't supported by ES 7.10.2 --> starts in 7.11"
+        # data = {'query': None,
+        #         'location': [-88.5, 39]}
+        # resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 10)
+        #
+        # data = {'query': None,
+        #         'location': [-88.5, 39],
+        #         'distance': '50km'}
+        # resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        # self.assertEqual(resp.status_code, 200)
+        # self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 10)
 
         data = {'query': '1197', 'filters': {} }
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
@@ -127,6 +130,9 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 3)
 
+    def test_seed_search_by_maturity_soy(self):
+        url = reverse('search_seed_facet', args=('soy',))
+        full_url = f'http://localhost:8001{url}'
         data = {'maturity_range': [0, 0.09]}
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
@@ -138,6 +144,7 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 10)
 
 
+@skip("Live server tests -- only run for integration testing")
 class TrialFacetedSearchTests(TestCase):
 
     def setUp(self):
@@ -181,6 +188,7 @@ class TrialFacetedSearchTests(TestCase):
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
 
+@skip("Live server tests -- only run for integration testing")
 class ReportFacetedSearchTests(TestCase):
 
     def setUp(self):

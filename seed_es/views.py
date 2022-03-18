@@ -127,6 +127,7 @@ class SeedSearchView(APIView):
 
             search = search[start:end]
             response = search.execute()
+            facets = response.facets
             paginator = DSEPaginator(response, per_page or settings.ES_PAGINATION_DEFAULT_LENGTH)
             try:
                 response = paginator.page(page)
@@ -143,8 +144,13 @@ class SeedSearchView(APIView):
                       })
         else:
             response = search.execute()
+            facets = response.facets
             d = response.to_dict()
 
+        # Must retrieve the facets before running .to_dict()
+        # facets = response.facets
+        # d = response.to_dict()
+        d['facets'] = facets.to_dict()
         d.pop('_faceted_search')
         d.pop('aggregations')
         return Response(d)
@@ -188,6 +194,10 @@ class TrialsSearchView(APIView):
         response = search.execute()
 
         d = response.to_dict()
+        # Must retrieve the facets before running .to_dict()
+        facets = response.facets
+        d = response.to_dict()
+        d['facets'] = facets.to_dict()
         d.pop('_faceted_search')
         return Response(d)
 
@@ -229,6 +239,10 @@ class ReportSearchView(APIView):
                            maturity_range=maturity_range)[0:settings.ES_MAX_RESULTS_COUNT]
 
         response = search.execute()
+        # Must retrieve the facets before running .to_dict()
+        facets = response.facets
         d = response.to_dict()
+        d['facets'] = facets.to_dict()
         d.pop('_faceted_search')
+        d.pop('aggregations')
         return Response(d)

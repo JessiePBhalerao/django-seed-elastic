@@ -505,6 +505,7 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=plymouth,
         pub_days_ago=21,
+        soil_texture='Sand',
         maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]
     )
     doc.save(index=test_index)
@@ -516,6 +517,19 @@ def setUpES():
         test_region='Iowa North [IANO]',
         location=ventura,
         pub_days_ago=32,
+        soil_texture='Clay',
+        maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]
+    )
+    doc.save(index=test_index)
+    doc = CornReportDoc(
+        site_name='New Franklin',
+        state='MO',
+        # location lookups
+        year=2019,
+        test_region='Missouri North [MONO]',
+        location=ventura,
+        pub_days_ago=3,
+        soil_texture='Clay',
         maturity=[100.0, 101.0, 102.0, 103.0, 104.0, 105.0]
     )
     doc.save(index=test_index)

@@ -4,3 +4,6 @@ dist/
 __pycache__/
 seed_es/__pycache__/
 seed_es/migrations/__pycache__/
+
+.DS_Store
+seed_es/.DS_Store
