@@ -137,6 +137,26 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
+    def test_compex_query(self):
+        url = reverse('search_seed_facet', args=('test_corn',))
+        full_url = f'http://localhost:8001{url}'
+
+        data = {'query': 'Pio 119'}
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
+
+        data = {'query': 'AM'}
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
+
+        data = {'query': '114 day'}
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+
 
 class TrialFacetedSearchTests(TestCase):
 

@@ -61,24 +61,25 @@ class FIRSTFacetedSearch(FacetedSearch):
         if query:
             if self.fields:
                 q_objects = None
-                for i, field in enumerate(self.fields):
-                    if i == 0:
-                        q_objects = Q("wildcard", **{field: '*' + query + '*'})
-                    else:
-                        q_objects |= Q("wildcard", **{field: '*' + query + '*'})
-                return ns.query(q_objects)
+                for val in query.split(' '):
+                    for i, field in enumerate(self.fields):
+                        if q_objects is None:
+                            q_objects = Q("wildcard", **{field: '*' + val + '*'})
+                        else:
+                            q_objects |= Q("wildcard", **{field: '*' + val + '*'})
+                ns = ns.query(q_objects)
             else:
                 # return ns.query("multi_match", query=query)
-                return ns.query("wildcard", query=query)
-
+                ns = ns.query("wildcard", query=query)
         return ns
 
 
 class SeedFacetedSearch(FIRSTFacetedSearch):
     # fields that should be searched
-    fields = ['full_name',
-              # 'tech_package',
-              # "name",
+    fields = ['brand',
+              'tech_package',
+              "name",
+              "maturity_display",
               ]
 
     facets = {

@@ -144,6 +144,7 @@ def setUpES():
         name='N1234',
         tech_package='AM',
         maturity=114.0,
+        maturity_display = '114',
         brand='NuTech',
         location = "BBOX (-94.8724706, -90.4856042, 42.3469749, 41.7306054)",
         yield_obs=9,
