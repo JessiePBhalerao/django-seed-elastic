@@ -5,15 +5,11 @@ from rest_framework.test import APITestCase, APIClient
 from elasticsearch_dsl import Search
 
 from .tests_setup import setUpES
-from ..views import SeedSearchView
-from efg.apps.seeds.models import Corn, Soy
-from efg.apps.associates.models import Organization
 
 import requests
 import json
 
 setUpES()
-
 
 
 class SeedFacetedSearchTests(TestCase):
@@ -148,17 +144,7 @@ class TrialFacetedSearchTests(TestCase):
         # for now we are using the live local server (django and ES)
         self.client = requests.Session()
         self.headers = {'Content-type': 'application/json'}
-        self.su = User.objects.create_superuser('jessie', email='jessie@gmail.com', password='SUPR1$E')
-        originator = Organization.objects.create(fullname='Default Seed Company',
-                                                 created_by=self.su, modified_by=self.su)
-        self.corn = Corn.objects.create(
-            brand='PIONEER',
-            name='BEST100X',
-            id=1,
-            seed_status='A',
-            maturity=100,
-            originator=originator,
-        )
+
         # TODO make a test ES server work and change the client
         # self.client = Client()
         # resp = client.generic(method="GET", path=full_url, data=json.dumps(data),
@@ -183,8 +169,6 @@ class TrialFacetedSearchTests(TestCase):
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
-
-
 
 
 class ReportFacetedSearchTests(TestCase):

@@ -1,7 +1,12 @@
 from django.utils.timezone import now, timedelta
 from elasticsearch_dsl import Index, Document, Text, Keyword, GeoShape, Integer, Float, GeoPoint, Date
+from django.conf import settings
 
 import time
+
+from elasticsearch_dsl import connections
+# connections.create_connection(hosts=['localhost'])
+connections.create_connection(hosts=settings.ELASTICSEARCH_DSL['test']['hosts'])
 
 # indices = ['test_corn', 'test_soy']
 # ELASTICSEARCH_TEST_HOST = "http://elasticsearch_test:9200"

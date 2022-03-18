@@ -6,10 +6,6 @@ from rest_framework.test import APITestCase, APIClient
 from elasticsearch_dsl import Search
 
 from .tests_setup import setUpES
-from ..views import SeedSearchView
-from efg.apps.seeds.models import Corn, Soy
-from efg.apps.associates.models import Organization
-
 import requests
 import json
 
