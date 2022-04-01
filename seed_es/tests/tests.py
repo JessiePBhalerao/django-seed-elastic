@@ -60,7 +60,7 @@ class SeedFacetedSearchTests(TestCase):
         url = reverse('search_seed_facet', args=('test_corn',))
 
         full_url = f'http://localhost:8001{url}'
-        data = {'query': 'pioneer', 'filters': {'tech_package': 'AM'} }
+        data = {'query': 'Pioneer', 'filters': {'tech_package': 'AM'} }
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)

@@ -1,4 +1,4 @@
-from elasticsearch_dsl import FacetedSearch, TermsFacet, RangeFacet, HistogramFacet, DateHistogramFacet
+from elasticsearch_dsl import FacetedSearch, TermsFacet, RangeFacet, HistogramFacet, DateHistogramFacet, NestedFacet
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl.connections import connections
@@ -79,7 +79,7 @@ class SeedFacetedSearch(FIRSTFacetedSearch):
     fields = ['brand',
               'tech_package',
               "name",
-              "maturity_display",
+              # "maturity_display",
               ]
 
     facets = {
@@ -183,13 +183,14 @@ class ReportFacetedSearch(FIRSTFacetedSearch):
     # fields that should be searched
     fields = ['sitename',
               "field_manager",
-              "plot_host"
+              "plot_host",
               ]
 
     facets = {
         # use bucket aggregations to define facets
         'year': TermsFacet(field='year'),
         'state': TermsFacet(field='state', size=50),
+        'county': TermsFacet(field='county', size=30),
         'soil_texture': TermsFacet(field='soil_texture', size=20),
         'published': RangeFacet(field='pub_days_ago', ranges=[("new", (0, 2)),
                                                              ("week", (0, 8)),
@@ -199,6 +200,10 @@ class ReportFacetedSearch(FIRSTFacetedSearch):
                                                             ])
     }
 
+    # Customization to describe the kind of filter this is for Front End development
+    facet_types = {
+        'year': {'category': 'Environment', 'datatype': 'integer'}
+    }
 
 class CornReportSearch(ReportFacetedSearch):
     crop_code = 'B'
