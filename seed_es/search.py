@@ -183,9 +183,9 @@ class ReportFacetedSearch(FIRSTFacetedSearch):
     Future filters: soils, tillage, previous crop, population, irrigation, FIRST manager, CONV/Non-GMO
     """
     # fields that should be searched
-    fields = ['sitename',
-              "field_manager.fullname",
-              "cooperator.fullname",
+    fields = ['site_name',
+              "fm",
+              "host",
               ]
 
     facets = {
