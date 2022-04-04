@@ -49,8 +49,10 @@ class FIRSTFacetedSearch(FacetedSearch):
         """
         ns = deepcopy(search)
         ns = ns.extra(track_total_hits=True)
+
+        # Add various possible queries to the base query
         if self.maturity_range:
-            return ns.filter('terms', maturity=self.maturity_range)
+            ns = ns.filter('terms', maturity=self.maturity_range)
 
         if self.location:
             # ns = Search(index='corn')
@@ -182,8 +184,8 @@ class ReportFacetedSearch(FIRSTFacetedSearch):
     """
     # fields that should be searched
     fields = ['sitename',
-              "field_manager",
-              "plot_host",
+              "field_manager.fullname",
+              "cooperator.fullname",
               ]
 
     facets = {
