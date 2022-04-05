@@ -97,7 +97,6 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
-
     def test_simple_seed_search_soy(self):
         url = reverse('search_seed_facet', args=('test_soy',))
         full_url = f'http://localhost:8001{url}'

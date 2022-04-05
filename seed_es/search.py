@@ -81,7 +81,7 @@ class SeedFacetedSearch(FIRSTFacetedSearch):
     fields = ['brand',
               'tech_package',
               "name",
-              # "maturity_display",
+              "maturity_display",
               ]
 
     facets = {
@@ -182,10 +182,12 @@ class ReportFacetedSearch(FIRSTFacetedSearch):
     Other required filters: year, state, maturity range, publish date/harvest date
     Future filters: soils, tillage, previous crop, population, irrigation, FIRST manager, CONV/Non-GMO
     """
-    # fields that should be searched
-    fields = ['site_name',
+    # fields that should be searched -- these should be different than those we need for display
+    # ALL of these fields' values will be removed from the response dictionary
+    fields = ['sitenames',
               "fm",
               "host",
+              "products"
               ]
 
     facets = {
@@ -206,6 +208,13 @@ class ReportFacetedSearch(FIRSTFacetedSearch):
     facet_types = {
         'year': {'category': 'Environment', 'datatype': 'integer'}
     }
+
+    def search(self):
+        s = super().search()
+        # remove value_* fields from the documents returned, we only want display ready values for the front end
+        s = s.source(excludes=self.fields + ['maturity'])
+        return s
+
 
 class CornReportSearch(ReportFacetedSearch):
     crop_code = 'B'
