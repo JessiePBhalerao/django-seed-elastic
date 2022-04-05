@@ -78,9 +78,8 @@ class FIRSTFacetedSearch(FacetedSearch):
 
 class SeedFacetedSearch(FIRSTFacetedSearch):
     # fields that should be searched
-    fields = ['brand',
-              'tech_package',
-              "name",
+    fields = ['product',
+              'tech',
               "maturity_display",
               ]
 
@@ -93,6 +92,12 @@ class SeedFacetedSearch(FIRSTFacetedSearch):
         'maturity': TermsFacet(field='maturity', size=60),
         'states': TermsFacet(field='states', size=20)
     }
+
+    def search(self):
+        s = super().search()
+        # remove value_* fields from the documents returned, we only want display ready values for the front end
+        s = s.source(excludes=[f for f in self.fields if f != 'maturity_display'])
+        return s
 
 
 class CornFacetedSearch(SeedFacetedSearch):
