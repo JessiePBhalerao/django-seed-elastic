@@ -41,6 +41,9 @@ class TestSeedDocument(Document):
     location = GeoShape()
     yield_obs = Integer()
     states = Keyword()
+    maturity_display = Text()
+    tech=Text()
+    product=Text()
 
 
 class CornDoc(TestSeedDocument):
@@ -115,8 +118,10 @@ def setUpES():
     corn = CornDoc(
         id = 1,
         full_name='PIONEER P1197AM',
+        product='PIONEER P1197AM',
         name = 'P1197AM',
         tech_package = 'AM',
+        tech = 'AM',
         maturity = 101.0,
         brand='Pioneer',
         top30_pct = 70.0,
@@ -127,8 +132,10 @@ def setUpES():
     corn2 = CornDoc(
         id=2,
         full_name='PIONEER P9999',
+        product='PIONEER P9999',
         name='P9999',
         tech_package='STX',
+        tech='STX',
         maturity = 99.0,
         brand='Pioneer',
         location="BBOX (-94.8724706, -88.4856042, 40.3469749, 37.7306054)",
@@ -141,8 +148,10 @@ def setUpES():
     corn3 = CornDoc(
         id=3,
         full_name='NUTECH N1234',
+        product='NUTECH N1234',
         name='N1234',
         tech_package='AM',
+        tech='AM',
         maturity=114.0,
         maturity_display = '114',
         brand='NuTech',
@@ -158,6 +167,7 @@ def setUpES():
     bean = SoyDoc(
         id=1,
         full_name='PIONEER P11X01',
+        product='PIONEER P11X01',
         name = 'P11X01',
         tech_package = 'RXF',
         maturity = 1.1,
@@ -171,6 +181,7 @@ def setUpES():
     bean2 = SoyDoc(
         id=2,
         full_name='PIONEER P009X01',
+        product='PIONEER P009X01',
         name = 'P009X01',
         tech_package = 'E3',
         maturity = 0.09,

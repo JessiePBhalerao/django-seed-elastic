@@ -60,13 +60,8 @@ class SeedFacetedSearchTests(TestCase):
         url = reverse('search_seed_facet', args=('test_corn',))
 
         full_url = f'http://localhost:8001{url}'
-        data = {'query': 'Pioneer', 'filters': {'tech_package': 'AM'} }
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
-
         data = {'query': None, 'filters': {'tech_package': 'AM'} }
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
 
@@ -76,6 +71,11 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 3)
 
         data = {'query': None, 'filters': {'states': ['Iowa']} }
+        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
+
+        data = {'query': 'PIONEER', 'filters': {'tech_package': 'AM'} }
         resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
@@ -102,7 +102,7 @@ class SeedFacetedSearchTests(TestCase):
         full_url = f'http://localhost:8001{url}'
 
         data = {'query': '11X', 'filters': {} }
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
@@ -136,22 +136,22 @@ class SeedFacetedSearchTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
-    def test_compex_query(self):
+    def test_complex_query(self):
         url = reverse('search_seed_facet', args=('test_corn',))
         full_url = f'http://localhost:8001{url}'
 
         data = {'query': 'Pio 119'}
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
 
         data = {'query': 'AM'}
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
 
         data = {'query': '114 day'}
-        resp = self.client.get(full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 1)
 
@@ -201,7 +201,7 @@ class ReportFacetedSearchTests(TestCase):
 
     def test_reports_facets(self):
         data = {'filters': {'soil_texture': ['Clay'], 'state': ['MO']}}
-        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(self.full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 2)
         # The facets keep the selected available options, but reduce the other facets to only available options
@@ -238,7 +238,7 @@ class ReportFacetedSearchTests(TestCase):
 
     def test_reports_by_soil(self):
         data = {'filters': {'soil_texture': ['Clay'], 'state': ['MO', 'IA']}}
-        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(self.full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 3)
         self.assertEqual(json.loads(resp.content)['facets']['state'][0][1], 2)
@@ -255,7 +255,7 @@ class ReportFacetedSearchTests(TestCase):
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 4)
 
         data = {'filters': {'published': ["2 weeks"]}}
-        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(self.full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(json.loads(resp.content)['hits']['hits']), 5)
 
@@ -273,7 +273,7 @@ class ReportFacetedSearchTests(TestCase):
     def test_reports_facets(self):
 
         data = {'filters': {'state': 'IA'}}
-        resp = self.client.get(self.full_url, data=json.dumps(data), headers=self.headers)
+        resp = self.client.post(self.full_url, data=json.dumps(data), headers=self.headers)
         self.assertEqual(resp.status_code, 200)
         content = json.loads(resp.content)
         self.assertEqual(len(content['hits']['hits']), 6)

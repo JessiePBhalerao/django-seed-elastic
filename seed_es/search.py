@@ -231,3 +231,4 @@ class SoyReportSearch(ReportFacetedSearch):
 
 class SilageReportSearch(ReportFacetedSearch):
     crop_code = 'L'
+

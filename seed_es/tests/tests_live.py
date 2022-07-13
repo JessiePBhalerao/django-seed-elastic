@@ -11,6 +11,10 @@ import json
 
 # setUpES()
 
+"""
+THESE tests require a complete run of the ES index build with the full datasert through 2021 --> EXCLUDE 2022!
+"""
+
 @skip("Live server tests -- only run for integration testing")
 class SeedFacetedSearchTests(TestCase):
 

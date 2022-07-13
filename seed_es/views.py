@@ -8,6 +8,7 @@ from django.conf import settings
 from .utils import seq
 from .search import *
 
+from elasticsearch_dsl import MultiSearch, Search
 from elasticsearch_dsl import connections
 # connections.create_connection(hosts=['localhost'])
 connections.create_connection(hosts=settings.ELASTICSEARCH_DSL['default']['hosts'])
@@ -155,6 +156,9 @@ class SeedSearchView(APIView):
         d.pop('aggregations')
         return Response(d)
 
+    def post(self, request, index, format=None):
+    	return self.get(request, index, format)
+
 
 class TrialsSearchView(APIView):
     """Retrieve all trials data for a particular seed -- with facets for filtering at some point
@@ -184,6 +188,9 @@ class TrialsSearchView(APIView):
         d['facets'] = facets.to_dict()
         d.pop('_faceted_search')
         return Response(d)
+
+    def post(self, request, index, seed_id, format=None):
+    	return self.get(request, index, seed, format)
 
 
 class ReportSearchView(APIView):
@@ -230,3 +237,63 @@ class ReportSearchView(APIView):
         d.pop('_faceted_search')
         d.pop('aggregations')
         return Response(d)
+
+    def post(self, request, index, format=None):
+   	    return self.get(request, index, format)
+
+
+REPORTS_FIELDS = ReportFacetedSearch.fields
+PRODUCTS_FIELDS = SeedFacetedSearch.fields
+POSTS_FIELDS = ['title', 'content']
+
+class FullTextSearch(APIView):
+
+    fullTextSearches = None
+
+    def multi_search(self, request, format=None):
+        "Chain together the searches of all relevant indexes --> need to name these somewhere, to include additional ones later"
+        payload = request.data
+        query = payload.get('query')
+
+        ms = MultiSearch()
+        for searchID, (index, fields) in enumerate(self.fullTextSearches):
+            #s1 = s.query('multi_match', query='Moorland', fields=['site_name', 'county', 'field_notes'])
+            ms = ms.add(Search(index, query=query, fields=fields))
+        return ms
+
+    def get(self, request, **kwargs):
+        ms = self.multi_search(request)
+        resp = ms.execute()
+        d = resp.to_dict()
+        return Response(d)
+
+    def post(self, request, **kwargs):
+    	return self.get(request, **kwargs)
+
+
+class SiteSearchView(FullTextSearch):
+    """
+    Search for reports, products, or posts on the website -- generally anything
+    """
+
+    fullTextSearches = (
+        ('cornreports', REPORTS_FIELDS),
+        ('soyreports', REPORTS_FIELDS),
+        ('silagereports', REPORTS_FIELDS),
+        ('cornseeds', PRODUCTS_FIELDS),
+        ('soyseeds', PRODUCTS_FIELDS),
+        ('posts', POSTS_FIELDS),
+        )
+
+
+class RecentSearchView(FullTextSearch):
+    """
+    Search for reports, or posts on the website ordered by date, with most recent first
+    """
+
+    fullTextSearches = (
+        ('cornreports', REPORTS_FIELDS),
+        ('soyreports', REPORTS_FIELDS),
+        ('silagereports', REPORTS_FIELDS),
+        ('posts', POSTS_FIELDS),
+    )
